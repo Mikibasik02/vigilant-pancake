@@ -2,6 +2,7 @@
 
 import logging
 import sys
+import os
 
 import discord
 from discord.ext import commands
@@ -25,8 +26,17 @@ class Bot(commands.Bot):
         logger.info("Bot ready!")
 
 
-async def start_bot(secret):
+async def start_bot(secret=None):
+    """Avvia il bot usando il token passato o dalla variabile d'ambiente"""
     bot = Bot()
     await music_cog.setup(bot)
     await management_cog.setup(bot)
+    
+    # Se non è stato passato un token, prova a prenderlo dalla variabile d'ambiente
+    if secret is None:
+        secret = os.getenv("DISCORD_TOKEN")
+        if secret is None:
+            logger.error("ERRORE: Token non trovato. Imposta DISCORD_TOKEN come variabile d'ambiente o passa il token.")
+            return
+    
     await bot.start(secret)
